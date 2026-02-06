@@ -1,0 +1,10 @@
+
+body { margin:0; font-family: Arial, sans-serif; background: #111; color: #fff; }
+#game-container { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+.card { position: absolute; width: 150px; height: 100px; background: #0077cc; border: 3px solid #0077cc; border-radius: 8px; padding: 5px; box-sizing: border-box; }
+.card.secret { border-color: orange; }
+.button { background: yellow; color: black; border: none; margin: 2px; padding: 3px 6px; cursor: pointer; font-weight: bold; border-radius: 3px; font-size:14px; }
+#mini-map { position: absolute; top: 10px; right: 10px; width: 140px; height: 140px; background: #000; border: 2px solid #fff; }
+.progress-bar { position: fixed; bottom: 10px; left: 10px; width: 80%; height: 20px; background: #333; border: 1px solid #fff; border-radius: 5px; }
+.progress-fill { height: 100%; width: 0%; background: green; border-radius: 5px; }
+.card-text { font-size: 12px; margin-bottom: 5px; }
