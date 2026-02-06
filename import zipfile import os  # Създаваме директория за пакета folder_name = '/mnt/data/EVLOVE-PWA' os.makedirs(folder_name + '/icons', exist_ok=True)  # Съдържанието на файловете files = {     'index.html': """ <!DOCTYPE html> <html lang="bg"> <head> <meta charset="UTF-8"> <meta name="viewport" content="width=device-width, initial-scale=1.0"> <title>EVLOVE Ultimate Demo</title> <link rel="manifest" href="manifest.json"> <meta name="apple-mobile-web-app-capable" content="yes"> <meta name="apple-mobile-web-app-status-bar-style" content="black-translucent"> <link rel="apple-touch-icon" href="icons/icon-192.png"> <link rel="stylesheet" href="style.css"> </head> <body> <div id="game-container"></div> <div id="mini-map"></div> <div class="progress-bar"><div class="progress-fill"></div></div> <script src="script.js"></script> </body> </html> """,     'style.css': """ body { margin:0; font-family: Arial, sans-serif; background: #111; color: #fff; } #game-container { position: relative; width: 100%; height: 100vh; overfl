@@ -1,0 +1,159 @@
+import zipfile
+import os
+
+# Създаваме директория за пакета
+folder_name = '/mnt/data/EVLOVE-PWA'
+os.makedirs(folder_name + '/icons', exist_ok=True)
+
+# Съдържанието на файловете
+files = {
+    'index.html': """
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVLOVE Ultimate Demo</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game-container"></div>
+<div id="mini-map"></div>
+<div class="progress-bar"><div class="progress-fill"></div></div>
+<script src="script.js"></script>
+</body>
+</html>
+""",
+    'style.css': """
+body { margin:0; font-family: Arial, sans-serif; background: #111; color: #fff; }
+#game-container { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+.card { position: absolute; width: 150px; height: 100px; background: #0077cc; border: 3px solid #0077cc; border-radius: 8px; padding: 5px; box-sizing: border-box; }
+.card.secret { border-color: orange; }
+.button { background: yellow; color: black; border: none; margin: 2px; padding: 3px 6px; cursor: pointer; font-weight: bold; border-radius: 3px; font-size:14px; }
+#mini-map { position: absolute; top: 10px; right: 10px; width: 140px; height: 140px; background: #000; border: 2px solid #fff; }
+.progress-bar { position: fixed; bottom: 10px; left: 10px; width: 80%; height: 20px; background: #333; border: 1px solid #fff; border-radius: 5px; }
+.progress-fill { height: 100%; width: 0%; background: green; border-radius: 5px; }
+.card-text { font-size: 12px; margin-bottom: 5px; }
+""",
+    'script.js': """
+const HUMAN = { ego:55, emotion:60, energy:70, focus:45, positivity:40, creativity:50, patience:50, courage:50 };
+let visitedCards = [];
+let board = [];
+let cycle = 0;
+
+function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function updateProgress(){
+  let sum = HUMAN.focus+HUMAN.positivity+HUMAN.creativity+HUMAN.patience+HUMAN.courage+(100-HUMAN.ego)+(100-HUMAN.emotion)+HUMAN.energy;
+  let progress=Math.floor(sum/8);
+  document.querySelector('.progress-fill').style.width = progress + '%';
+  if(progress>=100){ alert("🎉 Meta-transformation achieved!"); }
+}
+
+class Card{
+  constructor(id,text,x,y,previous=null,previousChoice=null){
+    this.id=id; this.text=text; this.x=x; this.y=y; this.previous=previous; this.previousChoice=previousChoice;
+    this.isSecret=(previousChoice=="A" && Math.random()<0.3);
+    this.module=Object.keys(HUMAN)[randomInt(0,7)];
+    this.options={"A":{label:"Усърдно",value:randomInt(5,10)},"B":{label:"Малка стъпка",value:randomInt(2,6)},"C":{label:"Пропускам",value:randomInt(-5,0)}};
+    if(this.isSecret) this.options["S"]={label:"Тайна стъпка",value:randomInt(8,12)};
+    this.createElement();
+  }
+  createElement(){
+    const container=document.getElementById('game-container');
+    this.elem=document.createElement('div');
+    this.elem.className='card'+(this.isSecret?' secret':'');
+    this.elem.style.left=this.x+'px';
+    this.elem.style.top=this.y+'px';
+    this.elem.innerHTML=`<div class="card-text">${this.text}</div>`;
+    for(let key in this.options){
+      let btn=document.createElement('button');
+      btn.className='button';
+      btn.innerText=key;
+      btn.onclick=()=>{this.selectOption(key);};
+      this.elem.appendChild(btn);
+    }
+    container.appendChild(this.elem);
+  }
+  selectOption(key){
+    HUMAN[this.module]=Math.min(100,Math.max(0,HUMAN[this.module]+this.options[key].value));
+    visitedCards.push(this);
+    generateBoard(this);
+    updateProgress();
+    updateMiniMap();
+  }
+}
+
+function generateBoard(previousCard=null){
+  const container=document.getElementById('game-container');
+  container.querySelectorAll('.card').forEach(c=>{ if(!visitedCards.includes(c.cardRef)) c.remove(); });
+  board=[];
+  for(let i=0;i<4;i++){
+    let x=randomInt(50,window.innerWidth-200);
+    let y=randomInt(50,window.innerHeight-200);
+    let questionText=i===0&&cycle===0?"Какво би направил при предизвикателство?":"Демо въпрос "+(i+1);
+    let c=new Card(cycle*10+i,questionText,x,y,previousCard,previousCard?"A":null);
+    c.elem.cardRef=c;
+    board.push(c);
+  }
+}
+
+function updateMiniMap(){
+  const map=document.getElementById('mini-map'); map.innerHTML='';
+  visitedCards.forEach(c=>{
+    let dot=document.createElement('div');
+    dot.style.position='absolute';
+    dot.style.width='5px'; dot.style.height='5px';
+    dot.style.background=c.isSecret?'orange':'blue';
+    dot.style.left=(c.x*0.1)+'px';
+    dot.style.top=(c.y*0.1)+'px';
+    map.appendChild(dot);
+  });
+}
+
+generateBoard();
+updateProgress();
+updateMiniMap();
+""",
+    'manifest.json': """
+{
+  "name": "EVLOVE Ultimate",
+  "short_name": "EVLOVE",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#0077cc",
+  "icons": [
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}
+"""
+}
+
+# Празни икони (можеш да замениш с истински png)
+icon_192 = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x10\x00\x00\x00\x10\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc`\x18\x05\xa3`\x14\x8c\x82\x81\x81\x01\x00\x06\x14\x02\x15y\xc2Q\x00\x00\x00\x00IEND\xaeB`\x82'
+icon_512 = icon_192  # за демо същото изображение
+
+# Записваме файловете
+for name, content in files.items():
+    with open(os.path.join(folder_name, name), 'w', encoding='utf-8') as f:
+        f.write(content)
+
+with open(os.path.join(folder_name, 'icons/icon-192.png'), 'wb') as f:
+    f.write(icon_192)
+with open(os.path.join(folder_name, 'icons/icon-512.png'), 'wb') as f:
+    f.write(icon_512)
+
+# Създаваме ZIP
+zip_path = '/mnt/data/EVLOVE-PWA.zip'
+with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+    for root, dirs, files_in_dir in os.walk(folder_name):
+        for file in files_in_dir:
+            file_path = os.path.join(root, file)
+            zipf.write(file_path, os.path.relpath(file_path, folder_name))
+
+zip_path
