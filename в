@@ -1,0 +1,23 @@
+// © 2026 Evllampiia
+// EVLOVE | ETHEREAL NEXUS – THE ULTIMATE META HUMAN TRANSFORMATION
+
+const express = require("express");
+const path = require("path");
+const app = express();
+
+// Serve all static files: HTML, CSS, JS, icons
+app.use(express.static(__dirname));
+
+// Splash log – показва авторството в конзолата
+app.use((req, res, next) => {
+  console.log("🌌 EVLOVE | ETHEREAL NEXUS – © 2026 Evllampiia");
+  next();
+});
+
+// fallback за SPA/PWA
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 EVLOVE Ultimate running on http://localhost:${PORT}`));
