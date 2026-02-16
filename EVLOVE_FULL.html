@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVLOVE ETERNAL NEXUS</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0b0b1a;
+  color: #fff;
+  padding: 10px;
+}
+#gameContainer { max-width: 600px; margin: auto; }
+#progressBarContainer { margin-top: 20px; }
+#consciousnessBar, #energyBar {
+  height: 25px; width: 100%; background-color: #222; margin-bottom: 5px;
+  text-align: center; line-height: 25px; position: relative;
+}
+#consciousnessBar::after, #energyBar::after {
+  content: ''; display: block; height: 100%; background-color: #0f0; width: 0%;
+  position: absolute; top:0; left:0;
+}
+button { margin-top:10px; padding: 5px 10px; background:#222; color:#0f0; border:none; cursor:pointer; }
+</style>
+</head>
+<body>
+<div id="gameContainer">
+  <div id="introText"></div>
+  <div id="heroCreation" style="display:none;">
+    <label>Име на героя: <input type="text" id="heroName"></label><br>
+    <div id="positiveTraits"><b>Положителни черти (2–4):</b><br></div>
+    <div id="negativeTraits"><b>Отрицателни черти (2–4):</b><br></div>
+    <button id="createHeroBtn">Създай герой</button>
+  </div>
+  <div id="gameStep" style="display:none;"></div>
+  <div id="progressBarContainer">
+    <div id="consciousnessBar">Съзнание: 0%</div>
+    <div id="energyBar">Енергия: 0%</div>
+  </div>
+</div>
+<script>
+// EVLOVE FULL RESET KEY
+const EVLOVE_KEY = 'EVLOVE_FULL_RESET_2026';
+
+let HERO = {
+    name: "", positiveTraits: [], negativeTraits: [],
+    consciousness:0, energy:0, steps:0, moves:0, stage:0
+};
+
+const introText = document.getElementById('introText');
+const heroCreation = document.getElementById('heroCreation');
+const gameStep = document.getElementById('gameStep');
+const consciousnessBar = document.getElementById('consciousnessBar');
+const energyBar = document.getElementById('energyBar');
+
+// 1. Интро
+function startIntro(){
+    introText.innerHTML = `
+    Добре дошъл в EVLOVE ETERNAL NEXUS – THE ULTIMATE META HUMAN TRANSFORMATION!<br><br>
+    Мета-вселена на съзнание и енергия. Всеки избор, емоция, фотонна карта и зар влияят на прогреса.<br><br>
+    Цел: Развитие на съзнание и енергия, отключване на аватари и енергийни същества, преминаване през 7 етапа и 77 стъпки на ход.
+    `;
+    setTimeout(()=>{ introText.style.display='none'; heroCreation.style.display='block'; generateTraitOptions(); },4000);
+}
+
+// 2. Генериране на черти
+function generateTraitOptions(){
+    const pos=['Състрадателен','Интуитивен','Смелост','Решителност','Творчество','Интуиция','Устойчивост','Вдъхновява другите'];
+    const neg=['Нерешителен','Съмнява се често','Импулсивен','Нетърпелив','Пасивен','Страхлив','Самокритичен','Лесно обезкуражаващ'];
+    const posDiv=document.getElementById('positiveTraits');
+    const negDiv=document.getElementById('negativeTraits');
+    pos.forEach(t=>{ let cb=document.createElement('input'); cb.type='checkbox'; cb.value=t; posDiv.appendChild(cb); posDiv.appendChild(document.createTextNode(t)); posDiv.appendChild(document.createElement('br')); });
+    neg.forEach(t=>{ let cb=document.createElement('input'); cb.type='checkbox'; cb.value=t; negDiv.appendChild(cb); negDiv.appendChild(document.createTextNode(t)); negDiv.appendChild(document.createElement('br')); });
+}
+
+// 3. Създаване на герой
+document.getElementById('createHeroBtn').addEventListener('click', ()=>{
+    HERO.name = document.getElementById('heroName').value || "Играч";
+    HERO.positiveTraits = Array.from(document.querySelectorAll('#positiveTraits input:checked')).map(i=>i.value);
+    HERO.negativeTraits = Array.from(document.querySelectorAll('#negativeTraits input:checked')).map(i=>i.value);
+    heroCreation.style.display='none';
+    startFirstStep();
+});
+
+// 4. Първа интерактивна стъпка
+function startFirstStep(){
+    gameStep.style.display='block';
+    gameStep.innerHTML = `
+    Пред теб се появява пулсиращ портал от светлина.<br>
+    Избери действие:<br>
+    1. Проучвам внимателно<br>
+    2. Приближавам бавно<br>
+    3. Сливам се с енергията<br>
+    4. Рискувам директно (Емоция 4)<br>
+    5. Изчаквам и анализирам<br>
+    6. Използвам въображението<br>
+    7. Проверявам за следи<br>
+    8. Отворен подход (ефект от Зар №3)<br><br>
+    (Тук можеш да добавиш функции за клик върху изборите, фотонни карти и проценти)
+    `;
+}
+
+// Стартиране на игра
+startIntro();
+</script>
+</body>
+</html>
